@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart' show CalendarCarousel, EventList;
+import 'package:flutter_calendar_carousel/classes/event.dart';
+import 'package:intl/intl.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Future.delayed(Duration(seconds: 1)); // 1초 동안 스플래시 화면 표시
   runApp(const MyApp());
 }
 
@@ -184,6 +189,7 @@ class CustomBottomNavigationBar extends StatelessWidget {
   }
 }
 
+// 지역 선택 창 **********************
 class RegionSelectionPage extends StatelessWidget {
   const RegionSelectionPage({super.key});
 
@@ -268,7 +274,7 @@ class RegionButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 50, // 버튼 높이를 줄임
+        height: 50,
         decoration: BoxDecoration(
           color: Colors.pinkAccent,
           borderRadius: BorderRadius.circular(20),
@@ -326,7 +332,16 @@ class DistrictPage extends StatelessWidget {
           itemBuilder: (context, index) {
             return RegionButton(
               label: districts[index],
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DateSelectionPage(
+                      title: '${title}/${districts[index]}',
+                    ),
+                  ),
+                );
+              },
             );
           },
         ),
@@ -335,6 +350,92 @@ class DistrictPage extends StatelessWidget {
     );
   }
 }
+
+// 날짜 선택 창 **********************
+class DateSelectionPage extends StatefulWidget {
+  final String title;
+
+  const DateSelectionPage({
+    required this.title,
+    super.key,
+  });
+
+  @override
+  _DateSelectionPageState createState() => _DateSelectionPageState();
+}
+
+class _DateSelectionPageState extends State<DateSelectionPage> {
+  DateTime _selectedDate = DateTime.now();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.pinkAccent,
+        elevation: 0,
+        title: Text(
+          widget.title,
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const SizedBox(height: 20),
+          CalendarCarousel<Event>(
+            onDayPressed: (date, events) {
+              setState(() {
+                _selectedDate = date;
+              });
+            },
+            weekendTextStyle: const TextStyle(color: Colors.red),
+            selectedDateTime: _selectedDate,
+            todayButtonColor: const Color.fromARGB(255, 255, 153, 187),
+            selectedDayButtonColor: Colors.pinkAccent,
+            height: 500.0,
+            selectedDayTextStyle: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pinkAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              onPressed: () {
+                final selectedDateString = DateFormat('yyyy-MM-dd').format(_selectedDate);
+                // Do something with the selected date, e.g., navigate to the next page
+                print('Selected Date: $selectedDateString');
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0),
+                child: Text(
+                  '선택한 날짜: 확인',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(),
+    );
+  }
+}
+
+
 
 // 지역구 리스트
 const seoulDistricts = [
@@ -579,5 +680,3 @@ class SejongDistrictPage extends StatelessWidget {
     return DistrictPage(title: '세종', districts: SejongDistricts);
   }
 }
-
-
