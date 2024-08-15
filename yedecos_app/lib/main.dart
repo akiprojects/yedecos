@@ -27,7 +27,7 @@ class HomePage extends StatelessWidget {
         title: const Text(
           '데이트 코스 AI',
           style: TextStyle(
-            color: Color.fromARGB(255, 255, 255, 255),
+            color: Colors.white,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -92,30 +92,7 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '',
-          ),
-        ],
-        selectedItemColor: const Color.fromARGB(255, 255, 255, 255),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.pinkAccent,
-        type: BottomNavigationBarType.fixed,
-      ),
+      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 }
@@ -165,7 +142,116 @@ class TransportButton extends StatelessWidget {
   }
 }
 
-// 지역구 선택 창
+class CustomBottomNavigationBar extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BottomAppBar(
+      color: Colors.transparent,
+      elevation: 0,
+      child: Container(
+        height: 80,
+        decoration: BoxDecoration(
+          color: Colors.pinkAccent,
+          borderRadius: BorderRadius.circular(30),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            IconButton(
+              icon: CircleAvatar(
+                radius: 25,
+                backgroundColor: Colors.white.withOpacity(0.2),
+                child: const Icon(Icons.apps, color: Colors.white),
+              ),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.favorite, color: Colors.white),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.message, color: Colors.white),
+              onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.settings, color: Colors.white),
+              onPressed: () {},
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RegionSelectionPage extends StatelessWidget {
+  const RegionSelectionPage({super.key});
+
+  final regions = const [
+    {"name": "서울", "page": SeoulDistrictPage()},
+    {"name": "경기", "page": GyeonkiDistrictPage()},
+    {"name": "부산", "page": BusanDistrictPage()},
+    {"name": "인천", "page": IncheonDistrictPage()},
+    {"name": "대구", "page": DaeguDistrictPage()},
+    {"name": "광주", "page": GuanjuDistrictPage()},
+    {"name": "대전", "page": DaejeonDistrictPage()},
+    {"name": "울산", "page": UlsanDistrictPage()},
+    {"name": "경남", "page": GyeonnamDistrictPage()},
+    {"name": "경북", "page": GyeonbukDistrictPage()},
+    {"name": "전남", "page": JeonnamDistrictPage()},
+    {"name": "전북", "page": JeonbukDistrictPage()},
+    {"name": "충남", "page": ChungnamDistrictPage()},
+    {"name": "충북", "page": ChungbukDistrictPage()},
+    {"name": "강원", "page": KangwonDistrictPage()},
+    {"name": "세종", "page": SejongDistrictPage()},
+    {"name": "제주", "page": JejuDistrictPage()},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.pinkAccent,
+        elevation: 0,
+        title: const Text(
+          '지역 선택',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 12.0,
+            mainAxisSpacing: 12.0,
+            childAspectRatio: 3,
+          ),
+          itemCount: regions.length,
+          itemBuilder: (context, index) {
+            final region = regions[index];
+            return RegionButton(
+              label: region["name"] as String,
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => region["page"] as Widget,
+                  ),
+                );
+              },
+            );
+          },
+        ),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(),
+    );
+  }
+}
 
 class RegionButton extends StatelessWidget {
   final String label;
@@ -202,8 +288,15 @@ class RegionButton extends StatelessWidget {
   }
 }
 
-class RegionSelectionPage extends StatelessWidget {
-  const RegionSelectionPage({super.key});
+class DistrictPage extends StatelessWidget {
+  final String title;
+  final List<String> districts;
+
+  const DistrictPage({
+    required this.title,
+    required this.districts,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -211,10 +304,10 @@ class RegionSelectionPage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.pinkAccent,
         elevation: 0,
-        title: const Text(
-          '지역 선택',
-          style: TextStyle(
-            color: Color.fromARGB(255, 255, 255, 255),
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: Colors.white,
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -222,232 +315,269 @@ class RegionSelectionPage extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 3, // 한 줄에 3개의 버튼
-          crossAxisSpacing: 12.0,
-          mainAxisSpacing: 12.0,
-          childAspectRatio: 3, // 가로와 세로 비율 조정
-          children: [
-            RegionButton(
-              label: '서울',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const SeoulDistrictPage(),
-                  ),
-                );
-              },
-            ),
-            RegionButton(label: '경기', onTap: () {}),
-            RegionButton(label: '부산', onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const BusanDistrictPage(),
-                  ),
-                );
-            }),
-            RegionButton(label: '인천', onTap: () {}),
-            RegionButton(label: '대구', onTap: () {}),
-            RegionButton(label: '광주', onTap: () {}),
-            RegionButton(label: '대전', onTap: () {}),
-            RegionButton(label: '울산', onTap: () {}),
-            RegionButton(label: '경남', onTap: () {}),
-            RegionButton(label: '경북', onTap: () {}),
-            RegionButton(label: '전남', onTap: () {}),
-            RegionButton(label: '전북', onTap: () {}),
-            RegionButton(label: '충남', onTap: () {}),
-            RegionButton(label: '충북', onTap: () {}),
-            RegionButton(label: '강원', onTap: () {}),
-            RegionButton(label: '세종', onTap: () {}),
-            RegionButton(label: '제주', onTap: () {}),
-          ],
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: 12.0,
+            mainAxisSpacing: 12.0,
+            childAspectRatio: 3,
+          ),
+          itemCount: districts.length,
+          itemBuilder: (context, index) {
+            return RegionButton(
+              label: districts[index],
+              onTap: () {},
+            );
+          },
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '',
-          ),
-        ],
-        selectedItemColor: const Color.fromARGB(255, 255, 255, 255),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.pinkAccent,
-        type: BottomNavigationBarType.fixed,
-      ),
+      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 }
 
-// 서울 지역구 선택 창
+// 지역구 리스트
+const seoulDistricts = [
+  '종로', '중구', '용산', '성동', '광진', '동대문', '중랑', '성북', '강북',
+  '도봉', '노원', '은평', '서대문', '마포', '양천', '강서', '구로', '금천',
+  '영등포', '동작', '관악', '서초', '강남', '송파', '강동',
+];
+
+const busanDistricts = [
+  '중구', '서구', '동구', '영도구', '부산진', '동래구', '남구', '북구',
+  '해운대', '사하구', '금정구', '강서구', '연제구', '수영구', '사상구', '기장군',
+];
+
+const daeguDistricts = [
+  '중구', '동구', '서구', '남구', '북구', '수성구', '달서구', '달성군',
+];
+
+const incheonDistricts = [
+  '중구', '동구', '남구', '연수구', '남동구', '부평구', '계양구', '서구',
+  '강화군', '옹진군',
+];
+
+const guanjuDistricts = [
+  '동구', '서구', '남구', '북구', '광산구',
+];
+
+const daejeonDistricts = [
+  '동구', '중구', '서구', '유성구', '대덕구',
+];
+
+const ulsanDistricts = [
+  '중구', '남구', '동구', '북구', '울주군',
+];
+
+const gyeonkiDistricts = [
+  '수원시', '성남시', '의정부', '안양시', '부천시', '광명시', '평택시', '동두천',
+  '안산시', '고양시', '과천시', '구리시', '남양주', '오산시', '시흥시', '군포시',
+  '의왕시', '하남시', '용인시', '파주시', '이천시', '안성시', '김포시', '화성시',
+  '광주시', '양주시', '포천시', '여주군', '연천군', '가평군', '양평군',
+];
+
+const kangwonDistricts = [
+  '춘천시', '원주시', '강릉시', '동해시', '태백시', '속초시', '삼척시',
+  '홍천군', '횡성군', '영월군', '평창군', '정선군', '철원군', '화천군',
+  '양구군', '인제군', '고성군', '양양군',
+];
+
+const chungbukDistricts = [
+  '청주시', '충주시', '제천시', '청원군', '보은군', '옥천군', '영동군',
+  '진천군', '괴산군', '음성군', '단양군',
+];
+
+const chungnamDistricts = [
+  '천안시', '공주시', '보령시', '아산시', '서산시', '논산시', '계룡시',
+  '당진시', '금산군', '부여군', '서천군', '청양군', '홍성군', '예산군',
+  '태안군',
+];
+
+const jeonbukDistricts = [
+  '전주시', '군산시', '익산시', '정읍시', '남원시', '김제시', '완주군',
+  '진안군', '무주군', '장수군', '임실군', '순창군', '고창군', '부안군',
+];
+
+const jeonnamDistricts = [
+  '목포시', '여수시', '순천시', '나주시', '광양시', '담양군', '곡성군',
+  '구례군', '고흥군', '보성군', '화순군', '장흥군', '강진군', '해남군',
+  '영암군', '무안군', '함평군', '영광군', '장성군', '완도군', '진도군',
+  '신안군',
+];
+
+const gyeonbukDistricts = [
+  '포항시', '경주시', '김천시', '안동시', '구미시', '영주시', '영천시',
+  '상주시', '문경시', '경산시', '군위군', '의성군', '청송군', '영양군',
+  '영덕군', '청도군', '고령군', '성주군', '칠곡군', '예천군', '봉화군',
+  '울진군', '울릉군',
+];
+
+const gyeonnamDistricts = [
+  '창원시', '진주시', '통영시', '사천시', '김해시', '밀양시', '거제시',
+  '양산시', '의령군', '함안군', '창녕군', '고성군', '남해군', '하동군',
+  '산청군', '함양군', '거창군', '합천군',
+];
+
+const jejuDistricts = [
+  '제주시', '서귀포시',
+];
+
+const SejongDistricts = [
+  '세종특별시',
+];
+
+// 각 지역에 대한 DistrictPage 클래스
 class SeoulDistrictPage extends StatelessWidget {
   const SeoulDistrictPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.pinkAccent,
-        elevation: 0,
-        title: const Text(
-          '서울',
-          style: TextStyle(
-            color: Color.fromARGB(255, 255, 255, 255),
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 3, // 한 줄에 3개의 버튼
-          crossAxisSpacing: 12.0,
-          mainAxisSpacing: 12.0,
-          childAspectRatio: 3, // 가로와 세로 비율 조정
-          children: [
-            RegionButton(label: '종로', onTap: () {}),
-            RegionButton(label: '중구', onTap: () {}),
-            RegionButton(label: '용산', onTap: () {}),
-            RegionButton(label: '성동', onTap: () {}),
-            RegionButton(label: '광진', onTap: () {}),
-            RegionButton(label: '동대문', onTap: () {}),
-            RegionButton(label: '중랑', onTap: () {}),
-            RegionButton(label: '성북', onTap: () {}),
-            RegionButton(label: '강북', onTap: () {}),
-            RegionButton(label: '도봉', onTap: () {}),
-            RegionButton(label: '노원', onTap: () {}),
-            RegionButton(label: '은평', onTap: () {}),
-            RegionButton(label: '서대문', onTap: () {}),
-            RegionButton(label: '마포', onTap: () {}),
-            RegionButton(label: '양천', onTap: () {}),
-            RegionButton(label: '강서', onTap: () {}),
-            RegionButton(label: '구로', onTap: () {}),
-            RegionButton(label: '금천', onTap: () {}),
-            RegionButton(label: '영등포', onTap: () {}),
-            RegionButton(label: '동작', onTap: () {}),
-            RegionButton(label: '관악', onTap: () {}),
-            RegionButton(label: '서초', onTap: () {}),
-            RegionButton(label: '강남', onTap: () {}),
-            RegionButton(label: '송파', onTap: () {}),
-            RegionButton(label: '강동', onTap: () {}),
-          ],
-        ),
-      ),
-      
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '',
-          ),
-        ],
-        selectedItemColor: const Color.fromARGB(255, 255, 255, 255),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.pinkAccent,
-        type: BottomNavigationBarType.fixed,
-      ),
-    );
+    return DistrictPage(title: '서울', districts: seoulDistricts);
   }
 }
 
-//부산 지역구 선택 창
 class BusanDistrictPage extends StatelessWidget {
   const BusanDistrictPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.pinkAccent,
-        elevation: 0,
-        title: const Text(
-          '부산',
-          style: TextStyle(
-            color: Color.fromARGB(255, 255, 255, 255),
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: GridView.count(
-          crossAxisCount: 3, // 한 줄에 3개의 버튼
-          crossAxisSpacing: 12.0,
-          mainAxisSpacing: 12.0,
-          childAspectRatio: 3, // 가로와 세로 비율 조정
-          children: [
-            RegionButton(label: '중구', onTap: () {}),
-            RegionButton(label: '서구', onTap: () {}),
-            RegionButton(label: '동구', onTap: () {}),
-            RegionButton(label: '영도구', onTap: () {}),
-            RegionButton(label: '부산진구', onTap: () {}),
-            RegionButton(label: '동래구', onTap: () {}),
-            RegionButton(label: '남구', onTap: () {}),
-            RegionButton(label: '북구', onTap: () {}),
-            RegionButton(label: '해운대구', onTap: () {}),
-            RegionButton(label: '사하구', onTap: () {}),
-            RegionButton(label: '금정구', onTap: () {}),
-            RegionButton(label: '강서구', onTap: () {}),
-            RegionButton(label: '연제구', onTap: () {}),
-            RegionButton(label: '수영구', onTap: () {}),
-            RegionButton(label: '사상구', onTap: () {}),
-            RegionButton(label: '기장군', onTap: () {}),
-          ],
-        ),
-      ),
-      
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            label: '',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: '',
-          ),
-        ],
-        selectedItemColor: const Color.fromARGB(255, 255, 255, 255),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.pinkAccent,
-        type: BottomNavigationBarType.fixed,
-      ),
-    );
+    return DistrictPage(title: '부산', districts: busanDistricts);
   }
 }
+
+class DaeguDistrictPage extends StatelessWidget {
+  const DaeguDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '대구', districts: daeguDistricts);
+  }
+}
+
+class IncheonDistrictPage extends StatelessWidget {
+  const IncheonDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '인천', districts: incheonDistricts);
+  }
+}
+
+class GuanjuDistrictPage extends StatelessWidget {
+  const GuanjuDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '광주', districts: guanjuDistricts);
+  }
+}
+
+class DaejeonDistrictPage extends StatelessWidget {
+  const DaejeonDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '대전', districts: daejeonDistricts);
+  }
+}
+
+class UlsanDistrictPage extends StatelessWidget {
+  const UlsanDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '울산', districts: ulsanDistricts);
+  }
+}
+
+class GyeonkiDistrictPage extends StatelessWidget {
+  const GyeonkiDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '경기', districts: gyeonkiDistricts);
+  }
+}
+
+class KangwonDistrictPage extends StatelessWidget {
+  const KangwonDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '강원', districts: kangwonDistricts);
+  }
+}
+
+class ChungbukDistrictPage extends StatelessWidget {
+  const ChungbukDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '충북', districts: chungbukDistricts);
+  }
+}
+
+class ChungnamDistrictPage extends StatelessWidget {
+  const ChungnamDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '충남', districts: chungnamDistricts);
+  }
+}
+
+class JeonbukDistrictPage extends StatelessWidget {
+  const JeonbukDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '전북', districts: jeonbukDistricts);
+  }
+}
+
+class JeonnamDistrictPage extends StatelessWidget {
+  const JeonnamDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '전남', districts: jeonnamDistricts);
+  }
+}
+
+class GyeonbukDistrictPage extends StatelessWidget {
+  const GyeonbukDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '경북', districts: gyeonbukDistricts);
+  }
+}
+
+class GyeonnamDistrictPage extends StatelessWidget {
+  const GyeonnamDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '경남', districts: gyeonnamDistricts);
+  }
+}
+
+class JejuDistrictPage extends StatelessWidget {
+  const JejuDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '제주', districts: jejuDistricts);
+  }
+}
+
+class SejongDistrictPage extends StatelessWidget {
+  const SejongDistrictPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DistrictPage(title: '세종', districts: SejongDistricts);
+  }
+}
+
+
