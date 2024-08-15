@@ -350,7 +350,6 @@ class DistrictPage extends StatelessWidget {
     );
   }
 }
-
 // 날짜 선택 창 **********************
 class DateSelectionPage extends StatefulWidget {
   final String title;
@@ -413,8 +412,13 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
               ),
               onPressed: () {
                 final selectedDateString = DateFormat('yyyy-MM-dd').format(_selectedDate);
-                // Do something with the selected date, e.g., navigate to the next page
                 print('Selected Date: $selectedDateString');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => GenreSelectionPage(),
+                  ),
+                );
               },
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0),
@@ -435,6 +439,138 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
   }
 }
 
+
+
+// 장르 선택 창 **********************
+
+class GenreSelectionPage extends StatefulWidget {
+  const GenreSelectionPage({super.key});
+
+  @override
+  _GenreSelectionPageState createState() => _GenreSelectionPageState();
+}
+
+class _GenreSelectionPageState extends State<GenreSelectionPage> {
+  final List<Map<String, dynamic>> genres = [
+    {"label": "연극", "icon": Icons.theater_comedy},
+    {"label": "뮤지컬", "icon": Icons.music_note},
+    {"label": "클래식", "icon": Icons.library_music},
+    {"label": "국악", "icon": Icons.filter_vintage},
+    {"label": "대중음악", "icon": Icons.music_video},
+    {"label": "한국무용", "icon": Icons.directions_run},
+    {"label": "대중무용", "icon": Icons.directions_walk},
+    {"label": "마술", "icon": Icons.auto_awesome},
+    {"label": "오페라", "icon": Icons.album},
+    {"label": "힙합/랩", "icon": Icons.mic},
+    {"label": "밴드", "icon": Icons.queue_music},
+    {"label": "서커스", "icon": Icons.ac_unit},
+  ];
+
+  // 선택된 장르를 저장하는 리스트
+  final Set<int> _selectedGenres = {};
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.pinkAccent,
+        elevation: 0,
+        title: const Text(
+          '장르 선택',
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              '• 중복선택 가능',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 42),
+            Flexible(
+              child: GridView.builder(
+                itemCount: genres.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 16.0,
+                  mainAxisSpacing: 16.0,
+                ),
+                itemBuilder: (BuildContext context, int index) {
+                  final isSelected = _selectedGenres.contains(index);
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if (isSelected) {
+                          _selectedGenres.remove(index); // 이미 선택된 경우 제거
+                        } else {
+                          _selectedGenres.add(index); // 선택되지 않은 경우 추가
+                        }
+                      });
+                    },
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 60,
+                          width: 60,
+                          decoration: BoxDecoration(
+                            color: isSelected ? Colors.pinkAccent : Colors.white,
+                            borderRadius: BorderRadius.circular(15),
+                            border: Border.all(color: Colors.black12),
+                          ),
+                          child: Icon(
+                            genres[index]["icon"],
+                            size: 32,
+                            color: isSelected ? Colors.white : Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          genres[index]["label"],
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            const SizedBox(height: 10), // 이 부분의 간격을 줄였습니다.
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.pinkAccent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              onPressed: () {
+                // 코스 생성 버튼 클릭 시 이벤트 처리
+              },
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                child: Text(
+                  '코스 생성',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(),
+    );
+  }
+}
 
 
 // 지역구 리스트
