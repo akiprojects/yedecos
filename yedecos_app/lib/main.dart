@@ -76,20 +76,33 @@ class HomePage extends StatelessWidget {
                   '데이트 코스를 계획하기 어려운 당신',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
-                    fontSize: 16,
+                    fontSize: 18,
                   ),
                 ),
                 SizedBox(height: 8),
-                Text('1. 이용할 교통 선택하기'),
-                Text('2. 가고싶은 지역 선택하기'),
-                Text('3. 데이트 날짜 선택하기'),
-                Text('4. 평소 취향 선택하기'),
+                Text('1. 이용할 교통 선택하기',
+                  style: TextStyle(
+                    fontSize: 18,
+                  ),),
+                Text('2. 가고싶은 지역 선택하기',
+                    style: TextStyle(
+                    fontSize: 18,
+                  ),),
+                Text('3. 데이트 날짜 선택하기',
+                    style: TextStyle(
+                    fontSize: 18,
+                  ),),
+                Text('4. 장르 선택하기',
+                    style: TextStyle(
+                    fontSize: 18,
+                  ),),
                 SizedBox(height: 16),
                 Text(
                   'AI가 당신만을 위한 데이트를 준비해요',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
-                    color: Colors.red,
+                    color: Colors.pinkAccent,
+                    fontSize: 18,
                   ),
                 ),
               ],
@@ -137,7 +150,7 @@ class TransportButton extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -233,9 +246,9 @@ class RegionSelectionPage extends StatelessWidget {
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            crossAxisSpacing: 12.0,
-            mainAxisSpacing: 12.0,
-            childAspectRatio: 3,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+            childAspectRatio: 2.7,
           ),
           itemCount: regions.length,
           itemBuilder: (context, index) {
@@ -283,7 +296,7 @@ class RegionButton extends StatelessWidget {
           child: Text(
             label,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
@@ -324,9 +337,9 @@ class DistrictPage extends StatelessWidget {
         child: GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            crossAxisSpacing: 12.0,
-            mainAxisSpacing: 12.0,
-            childAspectRatio: 3,
+            crossAxisSpacing: 16.0,
+            mainAxisSpacing: 16.0,
+            childAspectRatio: 2.7,
           ),
           itemCount: districts.length,
           itemBuilder: (context, index) {
@@ -395,6 +408,15 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
             selectedDateTime: _selectedDate,
             todayButtonColor: const Color.fromARGB(255, 255, 153, 187),
             selectedDayButtonColor: Colors.pinkAccent,
+            headerTextStyle: const TextStyle(
+              color: Colors.pinkAccent, // 년/월 텍스트 색상을 pinkAccent로 변경
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+            weekdayTextStyle: const TextStyle(
+              color: Colors.black, // 평일의 텍스트 색상
+              fontWeight: FontWeight.bold,
+            ),
             height: 500.0,
             selectedDayTextStyle: const TextStyle(
               color: Colors.white,
@@ -426,7 +448,8 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
                   '선택한 날짜: 확인',
                   style: TextStyle(
                     color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
                   ),
                 ),
               ),
@@ -500,7 +523,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 4,
                   crossAxisSpacing: 16.0,
-                  mainAxisSpacing: 16.0,
+                  mainAxisSpacing: 50.0,
                 ),
                 itemBuilder: (BuildContext context, int index) {
                   final isSelected = _selectedGenres.contains(index);
