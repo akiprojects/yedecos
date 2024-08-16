@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart' show CalendarCarousel, EventList;
 import 'package:flutter_calendar_carousel/classes/event.dart';
@@ -15,7 +16,31 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const HomePage(),
+      home: const HelloPage(), // 첫 화면으로 HelloPage 설정
+      routes: {
+        '/hello': (context) => const HelloPage(),
+        '/mainApp': (context) => const HomePage(),
+      },
+    );
+  }
+}
+
+class HelloPage extends StatelessWidget {
+  const HelloPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.pinkAccent,
+        elevation: 0,
+        title: const Text('Hello Page', style: TextStyle(fontWeight: FontWeight.w900)),
+        centerTitle: true,
+      ),
+      body: const Center(
+        child: Text('Hello', style: TextStyle(fontSize: 24)),
+      ),
+      bottomNavigationBar: CustomBottomNavigationBar(), // 동일한 bottomNavigationBar 추가
     );
   }
 }
@@ -80,22 +105,30 @@ class HomePage extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 8),
-                Text('1. 이용할 교통 선택하기',
+                Text(
+                  '1. 이용할 교통 선택하기',
                   style: TextStyle(
                     fontSize: 18,
-                  ),),
-                Text('2. 가고싶은 지역 선택하기',
-                    style: TextStyle(
+                  ),
+                ),
+                Text(
+                  '2. 가고싶은 지역 선택하기',
+                  style: TextStyle(
                     fontSize: 18,
-                  ),),
-                Text('3. 데이트 날짜 선택하기',
-                    style: TextStyle(
+                  ),
+                ),
+                Text(
+                  '3. 데이트 날짜 선택하기',
+                  style: TextStyle(
                     fontSize: 18,
-                  ),),
-                Text('4. 장르 선택하기',
-                    style: TextStyle(
+                  ),
+                ),
+                Text(
+                  '4. 장르 선택하기',
+                  style: TextStyle(
                     fontSize: 18,
-                  ),),
+                  ),
+                ),
                 SizedBox(height: 16),
                 Text(
                   'AI가 당신만을 위한 데이트를 준비해요',
@@ -181,11 +214,15 @@ class CustomBottomNavigationBar extends StatelessWidget {
                 backgroundColor: Colors.white.withOpacity(0.2),
                 child: const Icon(Icons.apps, color: Colors.white),
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/hello'); // Hello 페이지로 이동
+              },
             ),
             IconButton(
               icon: const Icon(Icons.favorite, color: Colors.white),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pushNamed(context, '/mainApp'); // HomePage로 이동
+              },
             ),
             IconButton(
               icon: const Icon(Icons.message, color: Colors.white),
