@@ -1,49 +1,199 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart' show CalendarCarousel, EventList;
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:intl/intl.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Future.delayed(Duration(seconds: 1)); // 1초 동안 스플래시 화면 표시
-  runApp(const MyApp());
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const HelloPage(), // 첫 화면으로 HelloPage 설정
+      home: HelloPage(),
       routes: {
-        '/hello': (context) => const HelloPage(),
-        '/mainApp': (context) => const HomePage(),
+        '/hello': (context) => HelloPage(),
+        '/mainApp': (context) => HomePage(),
       },
     );
   }
 }
 
-class HelloPage extends StatelessWidget {
-  const HelloPage({super.key});
+//1페이지 ********************************
+
+class HelloPage extends StatefulWidget {
+  @override
+  _HelloPageState createState() => _HelloPageState();
+}
+
+class _HelloPageState extends State<HelloPage> {
+  final List<String> imgList = [
+    'https://i.ibb.co/Q9Ckrw9/PF-PF246650-240809-093100.jpg',
+    'https://i.ibb.co/N3Hw0jz/PF-PF246758-240812-1102461.jpg',
+    'https://i.ibb.co/93MzB3C/PF-PF246539-240807-132022.png',
+    'https://i.ibb.co/q76rvpy/Kakao-Talk-20240814-104221626.jpg',
+  ];
+
+  int _currentIndex = 0;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.pinkAccent,
-        elevation: 0,
-        title: const Text('Hello Page', style: TextStyle(fontWeight: FontWeight.w900)),
-        centerTitle: true,
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // 검색 기능
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: '공연 검색',
+                    prefixIcon: Icon(Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                    filled: true,
+                    fillColor: Color.fromARGB(255, 242, 242, 242),
+                    contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 20),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              // "추천공연" 텍스트
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text(
+                  '2024 추천 공연',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w900,
+                    color: Color.fromARGB(255, 0, 0, 0),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // 이미지 슬라이더
+              CarouselSlider(
+                options: CarouselOptions(
+                  height: 600.0,
+                  autoPlay: true,
+                  autoPlayInterval: Duration(seconds: 2),
+                  enlargeCenterPage: true,
+                  viewportFraction: 0.8,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
+                  },
+                ),
+                items: imgList.map((item) => Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(40),
+                    image: DecorationImage(
+                      image: NetworkImage(item),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                )).toList(),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: imgList.map((url) {
+                  int index = imgList.indexOf(url);
+                  return Container(
+                    width: 8.0,
+                    height: 8.0,
+                    margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _currentIndex == index
+                          ? Color.fromRGBO(255, 255, 255, 0.9)
+                          : Color.fromRGBO(255, 255, 255, 0.4),
+                    ),
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 16),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Text(
+                      'CORS 에러로 인한 이미지 불러오기 불가 ',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text('고쳐라 레온게이야'),
+                  ],
+                ),
+              ),
+              // 가로로 긴 이미지들
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: List.generate(6, (index) => Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      width: 300,
+                      height: 150,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: NetworkImage('https://www.kopis.or.kr/upload/pfmIntroImage/PF_PF247088_240816_1043330.jpg'),
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                    ),
+                  )),
+                ),
+              ),
+              const SizedBox(height: 16),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  crossAxisSpacing: 10.0,
+                  mainAxisSpacing: 10.0,
+                ),
+                itemCount: 6,
+                itemBuilder: (context, index) {
+                  return Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundImage: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTB7huSu_HUmRz8VKVg8-0FkCTWnThWgV0wYfXZ93CnttWhb0pc'),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        ['뮤지컬', '연극', '콘서트', '클래식', '전시/레저', '기타'][index],
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
       ),
-      body: const Center(
-        child: Text('Hello', style: TextStyle(fontSize: 24)),
-      ),
-      bottomNavigationBar: CustomBottomNavigationBar(), // 동일한 bottomNavigationBar 추가
+      bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 0),
     );
   }
 }
+
+//2페이지 ********************************
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -51,13 +201,14 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white, // 페이지 배경을 흰색으로 설정
       appBar: AppBar(
-        backgroundColor: Colors.pinkAccent,
+        backgroundColor: Color.fromARGB(255, 255, 120, 156),
         elevation: 0,
         title: const Text(
           '데이트 코스 AI',
           style: TextStyle(
-            color: Colors.white,
+            color: Color.fromARGB(255, 255, 255, 255),
             fontWeight: FontWeight.w900,
           ),
         ),
@@ -71,7 +222,7 @@ class HomePage extends StatelessWidget {
             children: [
               TransportButton(
                 icon: Icons.directions_car,
-                label: '승용차',
+                label: '자가용',
                 onTap: () {
                   Navigator.push(
                     context,
@@ -134,7 +285,7 @@ class HomePage extends StatelessWidget {
                   'AI가 당신만을 위한 데이트를 준비해요',
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
-                    color: Colors.pinkAccent,
+                    color: Color.fromARGB(255, 255, 120, 156),
                     fontSize: 18,
                   ),
                 ),
@@ -143,7 +294,7 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
+      bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 1),
     );
   }
 }
@@ -170,12 +321,12 @@ class TransportButton extends StatelessWidget {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: Colors.pinkAccent,
+              color: Color.fromARGB(255, 255, 120, 156),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Icon(
               icon,
-              color: Colors.white,
+              color: const Color.fromARGB(255, 255, 255, 255),
               size: 50,
             ),
           ),
@@ -193,7 +344,54 @@ class TransportButton extends StatelessWidget {
   }
 }
 
-class CustomBottomNavigationBar extends StatelessWidget {
+class CustomBottomNavigationBar extends StatefulWidget {
+  final int currentIndex;
+
+  const CustomBottomNavigationBar({required this.currentIndex, Key? key}) : super(key: key);
+
+  @override
+  _CustomBottomNavigationBarState createState() => _CustomBottomNavigationBarState();
+}
+
+class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
+  int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedIndex = widget.currentIndex;
+  }
+
+  void _onItemTapped(int index) {
+    if (_selectedIndex == index) {
+      // 동일한 아이콘을 다시 클릭하면 새로고침 또는 뒤로 가기 동작을 수행할 수 있음
+      if (index == 0 || index == 1) {
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
+      return;
+    }
+
+    setState(() {
+      _selectedIndex = index;
+    });
+
+    // 페이지 이동 기능 추가
+    switch (index) {
+      case 0:
+        Navigator.pushReplacementNamed(context, '/hello');
+        break;
+      case 1:
+        Navigator.pushReplacementNamed(context, '/mainApp');
+        break;
+      case 2:
+        // 여기에 해당하는 페이지로 이동하도록 추가
+        break;
+      case 3:
+        // 여기에 해당하는 페이지로 이동하도록 추가
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BottomAppBar(
@@ -202,39 +400,96 @@ class CustomBottomNavigationBar extends StatelessWidget {
       child: Container(
         height: 80,
         decoration: BoxDecoration(
-          color: Colors.pinkAccent,
+          color: Color.fromARGB(255, 255, 120, 156),
           borderRadius: BorderRadius.circular(30),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            IconButton(
-              icon: CircleAvatar(
-                radius: 25,
-                backgroundColor: Colors.white.withOpacity(0.2),
-                child: const Icon(Icons.apps, color: Colors.white),
+            GestureDetector(
+              onTap: () => _onItemTapped(0),
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _selectedIndex == 0
+                      ? const Color.fromARGB(255, 255, 255, 255).withOpacity(0.4)
+                      : Colors.transparent,
+                ),
+                child: const Icon(Icons.apps, color: Color.fromARGB(255, 255, 255, 255)),
               ),
-              onPressed: () {
-                Navigator.pushNamed(context, '/hello'); // Hello 페이지로 이동
-              },
             ),
-            IconButton(
-              icon: const Icon(Icons.favorite, color: Colors.white),
-              onPressed: () {
-                Navigator.pushNamed(context, '/mainApp'); // HomePage로 이동
-              },
+            GestureDetector(
+              onTap: () => _onItemTapped(1),
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _selectedIndex == 1
+                      ? const Color.fromARGB(255, 255, 255, 255).withOpacity(0.4)
+                      : Colors.transparent,
+                ),
+                child: const Icon(Icons.favorite, color: Color.fromARGB(255, 255, 255, 255)),
+              ),
             ),
-            IconButton(
-              icon: const Icon(Icons.message, color: Colors.white),
-              onPressed: () {},
+            GestureDetector(
+              onTap: () => _onItemTapped(2),
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _selectedIndex == 2
+                      ? const Color.fromARGB(255, 255, 255, 255).withOpacity(0.4)
+                      : Colors.transparent,
+                ),
+                child: const Icon(Icons.message, color: Color.fromARGB(255, 255, 255, 255)),
+              ),
             ),
-            IconButton(
-              icon: const Icon(Icons.settings, color: Colors.white),
-              onPressed: () {},
+            GestureDetector(
+              onTap: () => _onItemTapped(3),
+              child: Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: _selectedIndex == 3
+                      ? const Color.fromARGB(255, 255, 255, 255).withOpacity(0.4)
+                      : Colors.transparent,
+                ),
+                child: const Icon(Icons.settings, color: Color.fromARGB(255, 255, 255, 255)),
+              ),
             ),
           ],
         ),
       ),
+    );
+  }
+}
+
+// 페이지 템플릿을 위한 기본 클래스
+class BaseScaffold extends StatelessWidget {
+  final String title;
+  final Widget body;
+
+  const BaseScaffold({required this.title, required this.body, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 255, 120, 156),
+        elevation: 0,
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 255, 255, 255),
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: body,
+      bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 1),
     );
   }
 }
@@ -265,19 +520,8 @@ class RegionSelectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.pinkAccent,
-        elevation: 0,
-        title: const Text(
-          '지역 선택',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        centerTitle: true,
-      ),
+    return BaseScaffold(
+      title: '지역 선택',
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
@@ -304,7 +548,6 @@ class RegionSelectionPage extends StatelessWidget {
           },
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 }
@@ -326,7 +569,7 @@ class RegionButton extends StatelessWidget {
       child: Container(
         height: 50,
         decoration: BoxDecoration(
-          color: Colors.pinkAccent,
+          color: Color.fromARGB(255, 255, 120, 156),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Center(
@@ -335,7 +578,7 @@ class RegionButton extends StatelessWidget {
             style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
+              color: Color.fromARGB(255, 255, 255, 255),
             ),
           ),
         ),
@@ -344,6 +587,7 @@ class RegionButton extends StatelessWidget {
   }
 }
 
+// 지역구 페이지 클래스 (BaseScaffold를 사용)
 class DistrictPage extends StatelessWidget {
   final String title;
   final List<String> districts;
@@ -356,19 +600,8 @@ class DistrictPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.pinkAccent,
-        elevation: 0,
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        centerTitle: true,
-      ),
+    return BaseScaffold(
+      title: title,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: GridView.builder(
@@ -396,10 +629,10 @@ class DistrictPage extends StatelessWidget {
           },
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 }
+
 // 날짜 선택 창 **********************
 class DateSelectionPage extends StatefulWidget {
   final String title;
@@ -418,19 +651,8 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.pinkAccent,
-        elevation: 0,
-        title: Text(
-          widget.title,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        centerTitle: true,
-      ),
+    return BaseScaffold(
+      title: widget.title,
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -444,9 +666,9 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
             weekendTextStyle: const TextStyle(color: Colors.red),
             selectedDateTime: _selectedDate,
             todayButtonColor: const Color.fromARGB(255, 255, 153, 187),
-            selectedDayButtonColor: Colors.pinkAccent,
+            selectedDayButtonColor: Color.fromARGB(255, 255, 120, 156),
             headerTextStyle: const TextStyle(
-              color: Colors.pinkAccent, // 년/월 텍스트 색상을 pinkAccent로 변경
+              color: Color.fromARGB(255, 255, 120, 156), // 년/월 텍스트 색상을 pinkAccent로 변경
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
@@ -456,7 +678,7 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
             ),
             height: 500.0,
             selectedDayTextStyle: const TextStyle(
-              color: Colors.white,
+              color: Color.fromARGB(255, 255, 255, 255),
             ),
           ),
           const SizedBox(height: 20),
@@ -464,7 +686,7 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.pinkAccent,
+                backgroundColor: Color.fromARGB(255, 255, 120, 156),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -484,7 +706,7 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
                 child: Text(
                   '선택한 날짜: 확인',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Color.fromARGB(255, 255, 255, 255),
                     fontSize: 20,
                     fontWeight: FontWeight.w900,
                   ),
@@ -494,12 +716,9 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 }
-
-
 
 // 장르 선택 창 **********************
 
@@ -531,19 +750,8 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.pinkAccent,
-        elevation: 0,
-        title: const Text(
-          '장르 선택',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        centerTitle: true,
-      ),
+    return BaseScaffold(
+      title: '장르 선택',
       body: Padding(
         padding: const EdgeInsets.all(32.0),
         child: Column(
@@ -580,14 +788,14 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                           height: 60,
                           width: 60,
                           decoration: BoxDecoration(
-                            color: isSelected ? Colors.pinkAccent : Colors.white,
+                            color: isSelected ? Color.fromARGB(255, 255, 120, 156) : const Color.fromARGB(255, 255, 255, 255),
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(color: Colors.black12),
                           ),
                           child: Icon(
                             genres[index]["icon"],
                             size: 32,
-                            color: isSelected ? Colors.white : Colors.black54,
+                            color: isSelected ? const Color.fromARGB(255, 255, 255, 255) : Colors.black54,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -604,7 +812,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
             const SizedBox(height: 10), // 이 부분의 간격을 줄였습니다.
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.pinkAccent,
+                backgroundColor: Color.fromARGB(255, 255, 120, 156),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
@@ -617,7 +825,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                 child: Text(
                   '코스 생성',
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Color.fromARGB(255, 255, 255, 255),
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
@@ -627,13 +835,11 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
           ],
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigationBar(),
     );
   }
 }
 
-
-// 지역구 리스트
+// 지역구 리스트 및 각 페이지에 대한 클래스
 const seoulDistricts = [
   '종로', '중구', '용산', '성동', '광진', '동대문', '중랑', '성북', '강북',
   '도봉', '노원', '은평', '서대문', '마포', '양천', '강서', '구로', '금천',
@@ -723,7 +929,6 @@ const SejongDistricts = [
   '세종특별시',
 ];
 
-// 각 지역에 대한 DistrictPage 클래스
 class SeoulDistrictPage extends StatelessWidget {
   const SeoulDistrictPage({super.key});
 

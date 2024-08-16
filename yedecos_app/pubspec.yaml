@@ -16,10 +16,11 @@ dependencies:
 
   # 달력 위젯 패키지 추가
   flutter_calendar_carousel: ^2.3.1
-
+  #슬라이드 뷰 추가
+  carousel_slider: ^4.0.0  
   # 날짜 및 시간 형식을 위한 패키지 추가
   intl: ^0.17.0
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
