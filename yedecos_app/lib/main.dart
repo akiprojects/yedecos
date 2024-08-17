@@ -228,7 +228,11 @@ class HomePage extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegionSelectionPage()),
+                    MaterialPageRoute(
+                      builder: (context) => RegionSelectionPage(
+                        transport: '자가용',
+                      ),
+                    ),
                   );
                 },
               ),
@@ -238,7 +242,11 @@ class HomePage extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegionSelectionPage()),
+                    MaterialPageRoute(
+                      builder: (context) => RegionSelectionPage(
+                        transport: '대중교통',
+                      ),
+                    ),
                   );
                 },
               ),
@@ -497,7 +505,8 @@ class BaseScaffold extends StatelessWidget {
 
 // 지역 선택 창 **********************
 class RegionSelectionPage extends StatelessWidget {
-  const RegionSelectionPage({super.key});
+  final String transport;
+  const RegionSelectionPage({required this.transport, super.key});
 
   final regions = const [
     {"name": "서울", "page": SeoulDistrictPage()},
@@ -542,6 +551,9 @@ class RegionSelectionPage extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (context) => region["page"] as Widget,
+                    settings: RouteSettings(
+                      arguments: transport,
+                    ),
                   ),
                 );
               },
@@ -601,6 +613,7 @@ class DistrictPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final transport = ModalRoute.of(context)!.settings.arguments as String?;
     return BaseScaffold(
       title: title,
       body: Padding(
@@ -622,6 +635,7 @@ class DistrictPage extends StatelessWidget {
                   MaterialPageRoute(
                     builder: (context) => DateSelectionPage(
                       title: '${title}/${districts[index]}',
+                      transport: transport,
                     ),
                   ),
                 );
@@ -637,9 +651,11 @@ class DistrictPage extends StatelessWidget {
 // 날짜 선택 창 **********************
 class DateSelectionPage extends StatefulWidget {
   final String title;
+  final String? transport;
 
   const DateSelectionPage({
     required this.title,
+    this.transport,
     super.key,
   });
 
@@ -698,7 +714,7 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
                   context,
                   MaterialPageRoute(
                     builder: (context) => GenreSelectionPage(
-                      transport: ModalRoute.of(context)!.settings.arguments as String?,
+                      transport: widget.transport,
                       region: widget.title.split('/')[0],
                       district: widget.title.split('/')[1],
                       date: selectedDateString,
@@ -901,7 +917,7 @@ class CourseSummaryPage extends StatelessWidget {
             const SizedBox(height: 8),
             Text('날짜: $date', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
-            Text('장르: ${genres.join(', ')}', style: const TextStyle(fontSize: 18)),
+            Text('장르: ${genres.join(',')}', style: const TextStyle(fontSize: 18)),
           ],
         ),
       ),
