@@ -32,10 +32,12 @@ class HelloPage extends StatefulWidget {
 
 class _HelloPageState extends State<HelloPage> {
   final List<String> imgList = [
-    'https://i.ibb.co/Q9Ckrw9/PF-PF246650-240809-093100.jpg',
+    'https://www.kopis.or.kr/upload/pfmPoster/PF_PF246650_240809_093100.jpg',
     'https://i.ibb.co/N3Hw0jz/PF-PF246758-240812-1102461.jpg',
     'https://i.ibb.co/93MzB3C/PF-PF246539-240807-132022.png',
     'https://i.ibb.co/q76rvpy/Kakao-Talk-20240814-104221626.jpg',
+    'https://www.kopis.or.kr/upload/pfmPoster/PF_PF246892_240813_100236.gif',
+    'https://www.kopis.or.kr/upload/pfmPoster/PF_PF246824_240812_140259.gif'
   ];
 
   int _currentIndex = 0;
@@ -73,7 +75,7 @@ class _HelloPageState extends State<HelloPage> {
                 child: Text(
                   '2024 추천 공연',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.w900,
                     color: Color.fromARGB(255, 0, 0, 0),
                   ),
@@ -83,7 +85,7 @@ class _HelloPageState extends State<HelloPage> {
               // 이미지 슬라이더
               CarouselSlider(
                 options: CarouselOptions(
-                  height: 600.0,
+                  height: 580.0,
                   autoPlay: true,
                   autoPlayInterval: Duration(seconds: 2),
                   enlargeCenterPage: true,
@@ -127,7 +129,7 @@ class _HelloPageState extends State<HelloPage> {
                 child: Column(
                   children: [
                     Text(
-                      'CORS 에러로 인한 이미지 불러오기 불가 ',
+                      'CORS 에러로 인한 이미지 불러오기 불가',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -149,7 +151,7 @@ class _HelloPageState extends State<HelloPage> {
                       height: 150,
                       decoration: BoxDecoration(
                         image: DecorationImage(
-                          image: NetworkImage('https://www.kopis.or.kr/upload/pfmIntroImage/PF_PF247088_240816_1043330.jpg'),
+                          image: NetworkImage('https://www.kopis.or.kr/upload/pfmPoster/PF_PF246506_240807_105640.gif'),
                           fit: BoxFit.cover,
                         ),
                         borderRadius: BorderRadius.circular(15),
@@ -286,16 +288,15 @@ class HomePage extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.w900,
                     color: Color.fromARGB(255, 255, 120, 156),
-                    fontSize: 18,
+                    fontSize: 18),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-      bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 1),
-    );
+          ],
+            ),     
+          bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 1),
+        );
   }
 }
 
@@ -693,11 +694,15 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
               ),
               onPressed: () {
                 final selectedDateString = DateFormat('yyyy-MM-dd').format(_selectedDate);
-                print('Selected Date: $selectedDateString');
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => GenreSelectionPage(),
+                    builder: (context) => GenreSelectionPage(
+                      transport: ModalRoute.of(context)!.settings.arguments as String?,
+                      region: widget.title.split('/')[0],
+                      district: widget.title.split('/')[1],
+                      date: selectedDateString,
+                    ),
                   ),
                 );
               },
@@ -723,7 +728,18 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
 // 장르 선택 창 **********************
 
 class GenreSelectionPage extends StatefulWidget {
-  const GenreSelectionPage({super.key});
+  final String? transport;
+  final String region;
+  final String district;
+  final String date;
+
+  const GenreSelectionPage({
+    required this.transport,
+    required this.region,
+    required this.district,
+    required this.date,
+    super.key,
+  });
 
   @override
   _GenreSelectionPageState createState() => _GenreSelectionPageState();
@@ -745,7 +761,6 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
     {"label": "서커스", "icon": Icons.ac_unit},
   ];
 
-  // 선택된 장르를 저장하는 리스트
   final Set<int> _selectedGenres = {};
 
   @override
@@ -809,7 +824,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                 },
               ),
             ),
-            const SizedBox(height: 10), // 이 부분의 간격을 줄였습니다.
+            const SizedBox(height: 10),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color.fromARGB(255, 255, 120, 156),
@@ -818,7 +833,21 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                 ),
               ),
               onPressed: () {
-                // 코스 생성 버튼 클릭 시 이벤트 처리
+                List<String> selectedGenresList = _selectedGenres
+                    .map((index) => genres[index]["label"] as String)
+                    .toList();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CourseSummaryPage(
+                      transport: widget.transport,
+                      region: widget.region,
+                      district: widget.district,
+                      date: widget.date,
+                      genres: selectedGenresList,
+                    ),
+                  ),
+                );
               },
               child: const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
@@ -832,6 +861,47 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CourseSummaryPage extends StatelessWidget {
+  final String? transport;
+  final String region;
+  final String district;
+  final String date;
+  final List<String> genres;
+
+  const CourseSummaryPage({
+    this.transport,
+    required this.region,
+    required this.district,
+    required this.date,
+    required this.genres,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BaseScaffold(
+      title: '코스 요약',
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('이동수단: $transport', style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 8),
+            Text('지역: $region', style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 8),
+            Text('상세 지역: $district', style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 8),
+            Text('날짜: $date', style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 8),
+            Text('장르: ${genres.join(', ')}', style: const TextStyle(fontSize: 18)),
           ],
         ),
       ),
