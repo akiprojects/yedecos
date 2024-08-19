@@ -3,6 +3,8 @@ import 'package:flutter_calendar_carousel/flutter_calendar_carousel.dart' show C
 import 'package:flutter_calendar_carousel/classes/event.dart';
 import 'package:intl/intl.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -129,14 +131,14 @@ class _HelloPageState extends State<HelloPage> {
                 child: Column(
                   children: [
                     Text(
-                      'CORS 에러로 인한 이미지 불러오기 불가',
+                      '축제 ZONE',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     SizedBox(height: 8),
-                    Text('고쳐라 레온게이야'),
+                    Text('금주 핫한 축제들을 모아왔어요!'),
                   ],
                 ),
               ),
@@ -742,7 +744,6 @@ class _DateSelectionPageState extends State<DateSelectionPage> {
 }
 
 // 장르 선택 창 **********************
-
 class GenreSelectionPage extends StatefulWidget {
   final String? transport;
   final String region;
@@ -779,6 +780,28 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
 
   final Set<int> _selectedGenres = {};
 
+  Future<void> sendDataToServer(List<String> selectedGenresList) async {
+    final url = Uri.parse('http://127.0.0.1:8000/submit');
+
+    final response = await http.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        'transport': widget.transport,
+        'region': widget.region,
+        'district': widget.district,
+        'date': widget.date,
+        'genres': selectedGenresList,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      print("Data sent successfully: ${response.body}");
+    } else {
+      print("Failed to send data: ${response.statusCode}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
@@ -807,9 +830,9 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                     onTap: () {
                       setState(() {
                         if (isSelected) {
-                          _selectedGenres.remove(index); // 이미 선택된 경우 제거
+                          _selectedGenres.remove(index);
                         } else {
-                          _selectedGenres.add(index); // 선택되지 않은 경우 추가
+                          _selectedGenres.add(index);
                         }
                       });
                     },
@@ -819,20 +842,25 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                           height: 60,
                           width: 60,
                           decoration: BoxDecoration(
-                            color: isSelected ? Color.fromARGB(255, 255, 120, 156) : const Color.fromARGB(255, 255, 255, 255),
+                            color: isSelected
+                                ? Color.fromARGB(255, 255, 120, 156)
+                                : const Color.fromARGB(255, 255, 255, 255),
                             borderRadius: BorderRadius.circular(15),
                             border: Border.all(color: Colors.black12),
                           ),
                           child: Icon(
                             genres[index]["icon"],
                             size: 32,
-                            color: isSelected ? const Color.fromARGB(255, 255, 255, 255) : Colors.black54,
+                            color: isSelected
+                                ? const Color.fromARGB(255, 255, 255, 255)
+                                : Colors.black54,
                           ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           genres[index]["label"],
-                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       ],
                     ),
@@ -852,6 +880,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                 List<String> selectedGenresList = _selectedGenres
                     .map((index) => genres[index]["label"] as String)
                     .toList();
+                sendDataToServer(selectedGenresList); // 데이터 전송
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -866,7 +895,8 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                 );
               },
               child: const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                padding:
+                    EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
                 child: Text(
                   '코스 생성',
                   style: TextStyle(
@@ -925,7 +955,11 @@ class CourseSummaryPage extends StatelessWidget {
   }
 }
 
+
+
 // 지역구 리스트 및 각 페이지에 대한 클래스
+//((****************************************************************************))
+
 const seoulDistricts = [
   '종로', '중구', '용산', '성동', '광진', '동대문', '중랑', '성북', '강북',
   '도봉', '노원', '은평', '서대문', '마포', '양천', '강서', '구로', '금천',

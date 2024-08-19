@@ -10,7 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+    
+  http: ^0.13.3
   cupertino_icons: ^1.0.6
   flutter_native_splash: ^2.4.1
 
