@@ -6,6 +6,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Future.delayed(Duration(seconds: 1)); // 1초 동안 스플래시 화면 표시
@@ -780,7 +781,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
 
   final Set<int> _selectedGenres = {};
 
-  Future<void> sendDataToServer(List<String> selectedGenresList) async {
+  Future<Map<String, dynamic>> sendDataToServer(List<String> selectedGenresList) async {
     final url = Uri.parse('http://127.0.0.1:8000/submit');
 
     final response = await http.post(
@@ -796,12 +797,14 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
     );
 
     if (response.statusCode == 200) {
-      print("Data sent successfully: ${response.body}");
+      final decodedResponse = jsonDecode(utf8.decode(response.bodyBytes));  // utf8 디코딩 적용
+      print("Data sent successfully: $decodedResponse");
+      return decodedResponse;
     } else {
       print("Failed to send data: ${response.statusCode}");
+      return {};
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
@@ -876,11 +879,14 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                   borderRadius: BorderRadius.circular(30),
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
                 List<String> selectedGenresList = _selectedGenres
                     .map((index) => genres[index]["label"] as String)
                     .toList();
-                sendDataToServer(selectedGenresList); // 데이터 전송
+
+                // 서버로 데이터 전송 및 응답 받기
+                Map<String, dynamic> responseData = await sendDataToServer(selectedGenresList);
+
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -890,6 +896,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                       district: widget.district,
                       date: widget.date,
                       genres: selectedGenresList,
+                      recommend1: responseData['recommend_1'], // 서버에서 받은 추천 공연 정보 전달
                     ),
                   ),
                 );
@@ -913,13 +920,13 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
     );
   }
 }
-
 class CourseSummaryPage extends StatelessWidget {
   final String? transport;
   final String region;
   final String district;
   final String date;
   final List<String> genres;
+  final Map<String, dynamic>? recommend1;  // 서버에서 받은 추천 공연 데이터
 
   const CourseSummaryPage({
     this.transport,
@@ -927,6 +934,7 @@ class CourseSummaryPage extends StatelessWidget {
     required this.district,
     required this.date,
     required this.genres,
+    this.recommend1,  // 생성자에서 recommend1 데이터 수신
     super.key,
   });
 
@@ -948,14 +956,21 @@ class CourseSummaryPage extends StatelessWidget {
             Text('날짜: $date', style: const TextStyle(fontSize: 18)),
             const SizedBox(height: 8),
             Text('장르: ${genres.join(',')}', style: const TextStyle(fontSize: 18)),
+            const SizedBox(height: 16),
+            if (recommend1 != null) ...[
+              const Text('추천 공연:', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text('공연명: ${recommend1!["공연명"] ?? "정보 없음"}', style: const TextStyle(fontSize: 18)),
+              Text('공연시설명: ${recommend1!["공연시설명"] ?? "정보 없음"}', style: const TextStyle(fontSize: 18)),
+              Text('공연시간: ${recommend1!["공연시간"] ?? "정보 없음"}', style: const TextStyle(fontSize: 18)),
+              Text('티켓가격: ${recommend1!["티켓가격"] ?? "정보 없음"}', style: const TextStyle(fontSize: 18)),
+            ] else
+              const Text('추천 공연 정보가 없습니다.', style: TextStyle(fontSize: 18)),
           ],
         ),
       ),
     );
   }
 }
-
-
 
 // 지역구 리스트 및 각 페이지에 대한 클래스
 //((****************************************************************************))
