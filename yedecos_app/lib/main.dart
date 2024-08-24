@@ -6,7 +6,6 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Future.delayed(Duration(seconds: 1)); // 1초 동안 스플래시 화면 표시
@@ -805,6 +804,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
       return {};
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return BaseScaffold(
@@ -884,9 +884,26 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                     .map((index) => genres[index]["label"] as String)
                     .toList();
 
+                // 로딩 화면을 보여줍니다.
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (BuildContext context) {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Color.fromARGB(255, 255, 120, 156),
+                      ),
+                    );
+                  },
+                );
+
                 // 서버로 데이터 전송 및 응답 받기
                 Map<String, dynamic> responseData = await sendDataToServer(selectedGenresList);
 
+                // 로딩 화면을 닫습니다.
+                Navigator.of(context).pop();
+
+                // 코스 요약 페이지로 이동합니다.
                 Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -902,8 +919,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                 );
               },
               child: const Padding(
-                padding:
-                    EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
+                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
                 child: Text(
                   '코스 생성',
                   style: TextStyle(
@@ -920,6 +936,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
     );
   }
 }
+
 class CourseSummaryPage extends StatelessWidget {
   final String? transport;
   final String region;
