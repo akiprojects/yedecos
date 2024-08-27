@@ -30,3 +30,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  # 추가된 assets 항목
+  assets:
+    - assets/replace.png  # 여기에 이미지 경로를 추가
