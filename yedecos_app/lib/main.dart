@@ -961,7 +961,9 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                       district: widget.district,
                       date: widget.date,
                       genres: selectedGenresList,
-                      recommend1: responseData['recommend_1'], // 서버에서 받은 추천 공연 정보 전달
+                      recommend1: responseData['recommend_fix'], // 서버에서 받은 추천 공연 정보 전달
+                      nearbyRestaurants: List<Map<String, dynamic>>.from(responseData['nearby_restaurants']),
+                      nearbyCafes: List<Map<String, dynamic>>.from(responseData['nearby_cafes']),
                     ),
                   ),
                 );
@@ -984,7 +986,6 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
     );
   }
 }
-
 class CourseSummaryPage extends StatelessWidget {
   final String? transport;
   final String region;
@@ -992,6 +993,8 @@ class CourseSummaryPage extends StatelessWidget {
   final String date;
   final List<String> genres;
   final Map<String, dynamic>? recommend1;
+  final List<Map<String, dynamic>>? nearbyRestaurants; // 선택 사항으로 변경
+  final List<Map<String, dynamic>>? nearbyCafes;       // 선택 사항으로 변경
 
   const CourseSummaryPage({
     this.transport,
@@ -1000,6 +1003,8 @@ class CourseSummaryPage extends StatelessWidget {
     required this.date,
     required this.genres,
     this.recommend1,
+    this.nearbyRestaurants,  // 선택 사항으로 설정
+    this.nearbyCafes,        // 선택 사항으로 설정
     super.key,
   });
 
@@ -1079,7 +1084,7 @@ class CourseSummaryPage extends StatelessWidget {
                 children: [
                   InfoIconText(
                     icon: Icons.attach_money,
-                    text: recommend1?["티켓가격"]?.toString() ?? "가격 정보 없음",
+                    text: recommend1?["티켓가격"]?.toString().replaceAll(', ', ',\n') ?? "가격 정보 없음",
                   ),
                   InfoIconText(
                     icon: Icons.access_time,
@@ -1107,10 +1112,26 @@ class CourseSummaryPage extends StatelessWidget {
                     padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 64.0),
                   ),
                   onPressed: () {
-                    // 예매 버튼 클릭 시 동작 추가
+                    // 새로운 페이지로 이동
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CourseDetailsPage(
+                          // 데이터를 CourseDetailsPage에 전달
+                          transport: transport,
+                          region: region,
+                          district: district,
+                          date: date,
+                          genres: genres,
+                          recommend1: recommend1,
+                          nearbyRestaurants: nearbyRestaurants, // 데이터를 전달
+                          nearbyCafes: nearbyCafes, // 데이터를 전달
+                        ),
+                      ),
+                    );
                   },
                   child: const Text(
-                    '코스 확정',
+                    '공연 확정',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 20,
@@ -1121,6 +1142,223 @@ class CourseSummaryPage extends StatelessWidget {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class CourseDetailsPage extends StatelessWidget {
+  final String? transport;
+  final String region;
+  final String district;
+  final String date;
+  final List<String> genres;
+  final Map<String, dynamic>? recommend1;
+  final List<Map<String, dynamic>>? nearbyRestaurants; // 선택 사항으로 설정
+  final List<Map<String, dynamic>>? nearbyCafes;       // 선택 사항으로 설정
+
+  const CourseDetailsPage({
+    this.transport,
+    required this.region,
+    required this.district,
+    required this.date,
+    required this.genres,
+    this.recommend1,
+    this.nearbyRestaurants,
+    this.nearbyCafes,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return BaseScaffold(
+      title: '코스 안내',
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          children: [
+            // 식당 정보 표시
+            if (nearbyRestaurants != null && nearbyRestaurants!.isNotEmpty)
+              Column(
+                children: [
+                  CourseStepItem(
+                    time: "12:00 - 13:00",
+                    icon: Icons.restaurant,
+                    title: nearbyRestaurants?[0]["title"] ?? "식당 정보 없음",
+                    category: nearbyRestaurants?[0]["category"] ?? "카테고리 정보 없음",
+                    rating: "4.56", // 예시 평점, 필요시 백엔드 데이터로 대체
+                    address: nearbyRestaurants?[0]["roadAddress"],
+                    link: nearbyRestaurants?[0]["link"],
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: IconButton(
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      onPressed: () {
+                        // 이동 경로 확인 코드 또는 함수 호출
+                        print('이동 경로 확인');
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              )
+            else
+              const Text("식당 정보가 없습니다."),
+            
+            // 카페 정보 표시
+            if (nearbyCafes != null && nearbyCafes!.isNotEmpty)
+              Column(
+                children: [
+                  CourseStepItem(
+                    time: "13:30 - 14:30",
+                    icon: Icons.local_cafe,
+                    title: nearbyCafes?[0]["title"] ?? "카페 정보 없음",
+                    category: nearbyCafes?[0]["category"] ?? "카테고리 정보 없음",
+                    rating: "4.48", // 예시 평점, 필요시 백엔드 데이터로 대체
+                    address: nearbyCafes?[0]["roadAddress"],
+                    link: nearbyCafes?[0]["link"],
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: IconButton(
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      onPressed: () {
+                        // 이동 경로 확인 코드 또는 함수 호출
+                        print('이동 경로 확인');
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              )
+            else
+              const Text("카페 정보가 없습니다."),
+
+            // 공연 정보 표시
+            CourseStepItem(
+              time: "15:00 - 16:30",
+              icon: Icons.theater_comedy,
+              title: recommend1?["공연명"] ?? "공연 정보 없음",
+              category: recommend1?["장르"] ?? "장르 정보 없음",
+              rating: "4.50", // 예시 평점, 필요시 백엔드 데이터로 대체
+            ),
+            const SizedBox(height: 16),
+
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CourseStepItem extends StatelessWidget {
+  final String time;
+  final IconData icon;
+  final String title;
+  final String category;
+  final String rating;
+  final String? address;
+  final String? link;
+
+  const CourseStepItem({
+    required this.time,
+    required this.icon,
+    required this.title,
+    required this.category,
+    required this.rating,
+    this.address,
+    this.link,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(15),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            blurRadius: 5,
+            spreadRadius: 1,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Column(
+              children: [
+                Icon(icon, size: 40.0, color: Colors.black),
+                const SizedBox(height: 8),
+                Text(
+                  time,
+                  style: const TextStyle(fontSize: 12, color: Colors.black),
+                ),
+              ],
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blue,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    category,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '평점: $rating',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.black54,
+                    ),
+                  ),
+                  if (address != null)
+                    Text(
+                      '주소: $address',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  if (link != null)
+                    InkWell(
+                      onTap: () {
+                        // 링크를 열기 위한 코드 (필요시 url_launcher 패키지 사용)
+                        print("Link: $link");
+                      },
+                      child: const Text(
+                        '링크 보기',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
         ),
       ),
     );
