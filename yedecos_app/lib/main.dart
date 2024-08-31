@@ -6,6 +6,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Future.delayed(Duration(seconds: 1)); // 1초 동안 스플래시 화면 표시
@@ -20,14 +21,183 @@ class MyApp extends StatelessWidget {
       routes: {
         '/hello': (context) => HelloPage(),
         '/mainApp': (context) => HomePage(),
+        '/jangsanbum': (context) => JangsanbumPerformancePage(), // JangsanbumPerformancePage 경로 추가
       },
     );
   }
 }
 
 
+class BaseScaffold extends StatelessWidget {
+  final String title;
+  final Widget body;
 
+  const BaseScaffold({required this.title, required this.body, super.key});
 
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 255, 120, 156),
+        elevation: 0,
+        title: Text(
+          title,
+          style: const TextStyle(
+            color: Color.fromARGB(255, 255, 255, 255),
+            fontWeight: FontWeight.w900,
+          ),
+        ),
+        centerTitle: true,
+      ),
+      body: body,
+      bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 1),
+    );
+  }
+}
+
+// JangsanbumPerformancePage의 구현
+class JangsanbumPerformancePage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BaseScaffold(
+      title: '공연 정보',
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // 포스터 이미지
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15.0),
+                  child: Image.network(
+                    'https://i.ibb.co/q76rvpy/Kakao-Talk-20240814-104221626.jpg', // 공연 포스터 URL 입력
+                    height: 580,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                      return Center(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(15.0),
+                          child: Image.asset(
+                            'assets/replace.png', // 로컬에 있는 플레이스홀더 이미지
+                            height: 540,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              // 공연 제목, 시설명, 제작사, 출연진
+              Text(
+                '장산범',
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '부산 해운대 문화회관',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '부산 장산의 도시괴담 장산범의 이야기를 판소리와 음악극으로 생생하게 풀어내는 스릴러 드라마 1인 창극',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '이향송(소리), 동다운(작곡)',
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black54,
+                ),
+              ),
+              const SizedBox(height: 16),
+              // 아이콘 및 정보들
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  InfoIconText(
+                    icon: Icons.attach_money,
+                    text: 'R석(1층) 30000원',
+                  ),
+                  InfoIconText(
+                    icon: Icons.access_time,
+                    text: '1시간30분',
+                  ),
+                  InfoIconText(
+                    icon: Icons.theater_comedy,
+                    text: '국악',
+                  ),
+                  InfoIconText(
+                    icon: Icons.confirmation_number,
+                    text: '티켓 예매',
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              // 코스 확정 버튼
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// InfoIconText 클래스는 그대로 사용합니다.
+class InfoIconText extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const InfoIconText({
+    required this.icon,
+    required this.text,
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color.fromARGB(255, 242, 242, 242),
+          ),
+          padding: EdgeInsets.all(10),
+          child: Icon(
+            icon,
+            color: Color.fromARGB(255, 255, 120, 156),
+            size: 32,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          text,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+  }
+}
 // 1페이지 ********************************
 
 class HelloPage extends StatefulWidget {
@@ -39,10 +209,8 @@ class _HelloPageState extends State<HelloPage> {
   final List<String> imgList = [
     'https://www.kopis.or.kr/upload/pfmPoster/PF_PF246650_240809_093100.jpg',
     'https://i.ibb.co/N3Hw0jz/PF-PF246758-240812-1102461.jpg',
-    'https://i.ibb.co/93MzB3C/PF-PF246539-240807-132022.png',
-    'https://i.ibb.co/q76rvpy/Kakao-Talk-20240814-104221626.jpg',
+    'https://i.ibb.co/q76rvpy/Kakao-Talk-20240814-104221626.jpg', // 클릭 시 이동
     'https://www.kopis.or.kr/upload/pfmPoster/PF_PF246892_240813_100236.gif',
-    'https://www.kopis.or.kr/upload/pfmPoster/PF_PF246824_240812_140259.gif'
   ];
 
   int _currentIndex = 0;
@@ -101,15 +269,25 @@ class _HelloPageState extends State<HelloPage> {
                     });
                   },
                 ),
-                items: imgList.map((item) => Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(40),
-                    image: DecorationImage(
-                      image: NetworkImage(item),
-                      fit: BoxFit.cover,
+                items: imgList.map((item) {
+                  return GestureDetector(
+                    onTap: () {
+                      // 특정 이미지를 클릭했을 때 JangsanbumPerformancePage로 이동
+                      if (item == 'https://i.ibb.co/q76rvpy/Kakao-Talk-20240814-104221626.jpg') {
+                        Navigator.pushNamed(context, '/jangsanbum');
+                      }
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(40),
+                        image: DecorationImage(
+                          image: NetworkImage(item),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
                     ),
-                  ),
-                )).toList(),
+                  );
+                }).toList(),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -151,20 +329,34 @@ class _HelloPageState extends State<HelloPage> {
               SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
-                  children: List.generate(6, (index) => Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Container(
-                      width: 350, // 이미지 가로 길이를 늘림
-                      height: 200, // 이미지 세로 길이를 늘림
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT34QeLtTL9uos1BdqInCWIhJNBiTG1CLT_BQ&s'),
-                          fit: BoxFit.cover,
+                  children: List.generate(6, (index) {
+                    // 사용할 이미지 URL 리스트
+                    final List<String> festivalImages = [
+                      'https://www.kopis.or.kr/upload/pfmIntroImage/PF_PF247909_240828_0503500.jpg',
+                      'https://www.kopis.or.kr/upload/pfmIntroImage/PF_PF247875_240828_0201100.jpg',
+                      'https://www.kopis.or.kr/upload/pfmIntroImage/PF_PF247436_240821_0214010.jpg',
+                      'https://www.kopis.or.kr/upload/pfmIntroImage/PF_PF247748_240827_0942490.jpg',
+                      'https://www.kopis.or.kr/upload/pfmIntroImage/PF_PF247412_240821_0120060.jpg',
+                    ];
+
+                    // 이미지가 리스트의 개수보다 많은 경우를 대비하여 인덱스를 순환하도록 설정
+                    String imageUrl = festivalImages[index % festivalImages.length];
+
+                    return Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Container(
+                        width: 350, // 이미지 가로 길이를 늘림
+                        height: 600, // 이미지 세로 길이를 늘림
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: NetworkImage(imageUrl),
+                            fit: BoxFit.cover,
+                          ),
+                          borderRadius: BorderRadius.circular(15),
                         ),
-                        borderRadius: BorderRadius.circular(15),
                       ),
-                    ),
-                  )),
+                    );
+                  }),
                 ),
               ),
               const SizedBox(height: 16),
@@ -193,14 +385,59 @@ class _HelloPageState extends State<HelloPage> {
                       ),
                       itemCount: 4,
                       itemBuilder: (context, index) {
-                        return Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(15),
-                            image: DecorationImage(
-                              image: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT34QeLtTL9uos1BdqInCWIhJNBiTG1CLT_BQ&s'),
-                              fit: BoxFit.cover,
+                        // 사용할 이미지 URL 리스트
+                        final List<String> courseImages = [
+                          'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxleHBsb3JlLWZlZWR8Mnx8fGVufDB8fHx8fA%3D%3D',
+                          'https://lh3.googleusercontent.com/proxy/NjppcGQTBcuGCbJ5ut5loH69vl7c0U4dsKWxnwpf_7NUPTetI12_rmwW_6lBg88tgOm1K-wbPM7nS0cOFUZ9bmKRam59AfHgQuWV-M8aO3nw',
+                          'https://cdn.maily.so/n4aeljm08sya64gwracza6d7a3c1',
+                          'https://img.freepik.com/free-photo/beautiful-architecture-building-cityscape-in-seoul-city_74190-3218.jpg?size=626&ext=jpg&ga=GA1.1.2008272138.1724803200&semt=ais_hybrid',
+                        ];
+
+                        // 텍스트 리스트
+                        final List<String> courseTitles = [
+                          '부산 코스',
+                          '여수 코스',
+                          '제주 코스',
+                          '서울 코스',
+                        ];
+
+                        // index를 이용해 이미지와 텍스트 리스트에서 적절한 항목 가져오기
+                        String imageUrl = courseImages[index % courseImages.length];
+                        String courseTitle = courseTitles[index % courseTitles.length];
+
+                        return Stack(
+                          children: [
+                            // 배경 이미지
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(15),
+                                image: DecorationImage(
+                                  image: NetworkImage(imageUrl),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
                             ),
-                          ),
+                            // 이미지 위에 텍스트 덮기
+                            Positioned(
+                              bottom: 16.0, // 텍스트 위치 (하단에서 16pt 위로)
+                              left: 16.0, // 텍스트 위치 (왼쪽에서 16pt 오른쪽으로)
+                              child: Text(
+                                courseTitle,
+                                style: TextStyle(
+                                  color: Colors.white, // 텍스트 색상
+                                  fontSize: 20, // 텍스트 크기
+                                  fontWeight: FontWeight.bold, // 텍스트 굵기
+                                  shadows: [
+                                    Shadow(
+                                      blurRadius: 10.0, // 그림자 반경
+                                      color: Colors.black, // 그림자 색상
+                                      offset: Offset(2.0, 2.0), // 그림자 위치
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
                         );
                       },
                     ),
@@ -220,17 +457,6 @@ class _HelloPageState extends State<HelloPage> {
                 itemCount: 6,
                 itemBuilder: (context, index) {
                   return Column(
-                    children: [
-                      CircleAvatar(
-                        radius: 30,
-                        backgroundImage: NetworkImage('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT34QeLtTL9uos1BdqInCWIhJNBiTG1CLT_BQ&s'),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        ['뮤지컬', '연극', '콘서트', '클래식', '전시/레저', '기타'][index],
-                        style: TextStyle(fontSize: 12),
-                      ),
-                    ],
                   );
                 },
               ),
@@ -522,34 +748,6 @@ class _CustomBottomNavigationBarState extends State<CustomBottomNavigationBar> {
   }
 }
 
-// 페이지 템플릿을 위한 기본 클래스
-class BaseScaffold extends StatelessWidget {
-  final String title;
-  final Widget body;
-
-  const BaseScaffold({required this.title, required this.body, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Color.fromARGB(255, 255, 120, 156),
-        elevation: 0,
-        title: Text(
-          title,
-          style: const TextStyle(
-            color: Color.fromARGB(255, 255, 255, 255),
-            fontWeight: FontWeight.w900,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: body,
-      bottomNavigationBar: CustomBottomNavigationBar(currentIndex: 1),
-    );
-  }
-}
 
 // 지역 선택 창 **********************
 class RegionSelectionPage extends StatelessWidget {
@@ -962,8 +1160,12 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
                       date: widget.date,
                       genres: selectedGenresList,
                       recommend1: responseData['recommend_fix'], // 서버에서 받은 추천 공연 정보 전달
-                      nearbyRestaurants: List<Map<String, dynamic>>.from(responseData['nearby_restaurants']),
-                      nearbyCafes: List<Map<String, dynamic>>.from(responseData['nearby_cafes']),
+                      nearbyRestaurants: responseData['nearby_restaurants'] != null
+                      ? List<Map<String, dynamic>>.from(responseData['nearby_restaurants'])
+                      : [], // null일 경우 빈 리스트로 대체
+                      nearbyCafes: responseData['nearby_cafes'] != null
+                      ? List<Map<String, dynamic>>.from(responseData['nearby_cafes'])
+                      : [], // null일 경우 빈 리스트로 대체
                     ),
                   ),
                 );
@@ -986,6 +1188,7 @@ class _GenreSelectionPageState extends State<GenreSelectionPage> {
     );
   }
 }
+
 class CourseSummaryPage extends StatelessWidget {
   final String? transport;
   final String region;
@@ -993,8 +1196,8 @@ class CourseSummaryPage extends StatelessWidget {
   final String date;
   final List<String> genres;
   final Map<String, dynamic>? recommend1;
-  final List<Map<String, dynamic>>? nearbyRestaurants; // 선택 사항으로 변경
-  final List<Map<String, dynamic>>? nearbyCafes;       // 선택 사항으로 변경
+  final List<Map<String, dynamic>>? nearbyRestaurants;
+  final List<Map<String, dynamic>>? nearbyCafes;
 
   const CourseSummaryPage({
     this.transport,
@@ -1003,13 +1206,32 @@ class CourseSummaryPage extends StatelessWidget {
     required this.date,
     required this.genres,
     this.recommend1,
-    this.nearbyRestaurants,  // 선택 사항으로 설정
-    this.nearbyCafes,        // 선택 사항으로 설정
+    this.nearbyRestaurants,
+    this.nearbyCafes,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
+    // 데이터가 없는 경우 예외 페이지 표시
+    if (recommend1 == null ||
+        recommend1!.isEmpty ||
+        nearbyRestaurants == null ||
+        nearbyRestaurants!.isEmpty ||
+        nearbyCafes == null ||
+        nearbyCafes!.isEmpty) {
+      return BaseScaffold(
+        title: '공연 정보',
+        body: Center(
+          child: Text(
+            '공연 정보가 없습니다.\n지역, 날짜, 장르를 변경하여 주세요.',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w900),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      );
+    }
+
     return BaseScaffold(
       title: '공연 정보',
       body: Padding(
@@ -1028,7 +1250,8 @@ class CourseSummaryPage extends StatelessWidget {
                       height: 540,
                       width: double.infinity,
                       fit: BoxFit.cover,
-                      errorBuilder: (BuildContext context, Object exception, StackTrace? stackTrace) {
+                      errorBuilder: (BuildContext context, Object exception,
+                          StackTrace? stackTrace) {
                         return Center(
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(15.0),
@@ -1084,7 +1307,8 @@ class CourseSummaryPage extends StatelessWidget {
                 children: [
                   InfoIconText(
                     icon: Icons.attach_money,
-                    text: recommend1?["티켓가격"]?.toString().replaceAll(', ', ',\n') ?? "가격 정보 없음",
+                    text: recommend1?["티켓가격"]?.toString().replaceAll(', ', ',\n') ??
+                        "가격 정보 없음",
                   ),
                   InfoIconText(
                     icon: Icons.access_time,
@@ -1105,11 +1329,12 @@ class CourseSummaryPage extends StatelessWidget {
               Center(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 255, 120, 156),
+                    backgroundColor: const Color.fromARGB(255, 255, 120, 156),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
-                    padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 64.0),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 16.0, horizontal: 64.0),
                   ),
                   onPressed: () {
                     // 새로운 페이지로 이동
@@ -1124,8 +1349,8 @@ class CourseSummaryPage extends StatelessWidget {
                           date: date,
                           genres: genres,
                           recommend1: recommend1,
-                          nearbyRestaurants: nearbyRestaurants, // 데이터를 전달
-                          nearbyCafes: nearbyCafes, // 데이터를 전달
+                          nearbyRestaurants: nearbyRestaurants,
+                          nearbyCafes: nearbyCafes,
                         ),
                       ),
                     );
@@ -1155,8 +1380,8 @@ class CourseDetailsPage extends StatelessWidget {
   final String date;
   final List<String> genres;
   final Map<String, dynamic>? recommend1;
-  final List<Map<String, dynamic>>? nearbyRestaurants; // 선택 사항으로 설정
-  final List<Map<String, dynamic>>? nearbyCafes;       // 선택 사항으로 설정
+  final List<Map<String, dynamic>>? nearbyRestaurants;
+  final List<Map<String, dynamic>>? nearbyCafes;
 
   const CourseDetailsPage({
     this.transport,
@@ -1172,6 +1397,30 @@ class CourseDetailsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // 공연 시작 시간과 런타임 데이터를 가져옵니다.
+    String? startTime = recommend1?["공연시작시간"];
+    String? runtime = recommend1?["공연런타임"];
+
+    // 공연 정보가 없는 경우 처리
+    if (recommend1 == null) {
+      return BaseScaffold(
+        title: '코스 안내',
+        body: Center(
+          child: Text(
+            '공연 정보가 없습니다.',
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
+
+    // 공연 시간 계산
+    String calculatedShowTime = calculateTimeRange(startTime, runtime);
+
+    // 식당과 카페 시간 계산 (공연 시작 시간 기준으로 역산)
+    String cafeTime = calculatePreviousTime(startTime, -90);  // 카페: 공연 시작 1시간 30분 전
+    String restaurantTime = calculatePreviousTime(startTime, -180);  // 식당: 카페 시작 1시간 30분 전
+
     return BaseScaffold(
       title: '코스 안내',
       body: Padding(
@@ -1183,7 +1432,7 @@ class CourseDetailsPage extends StatelessWidget {
               Column(
                 children: [
                   CourseStepItem(
-                    time: "12:00 - 13:00",
+                    time: restaurantTime,
                     icon: Icons.restaurant,
                     title: nearbyRestaurants?[0]["title"] ?? "식당 정보 없음",
                     category: nearbyRestaurants?[0]["category"] ?? "카테고리 정보 없음",
@@ -1212,7 +1461,7 @@ class CourseDetailsPage extends StatelessWidget {
               Column(
                 children: [
                   CourseStepItem(
-                    time: "13:30 - 14:30",
+                    time: cafeTime,
                     icon: Icons.local_cafe,
                     title: nearbyCafes?[0]["title"] ?? "카페 정보 없음",
                     category: nearbyCafes?[0]["category"] ?? "카테고리 정보 없음",
@@ -1238,18 +1487,73 @@ class CourseDetailsPage extends StatelessWidget {
 
             // 공연 정보 표시
             CourseStepItem(
-              time: "15:00 - 16:30",
+              time: calculatedShowTime,
               icon: Icons.theater_comedy,
               title: recommend1?["공연명"] ?? "공연 정보 없음",
               category: recommend1?["장르"] ?? "장르 정보 없음",
               rating: "4.50", // 예시 평점, 필요시 백엔드 데이터로 대체
             ),
             const SizedBox(height: 16),
-
           ],
         ),
       ),
     );
+  }
+
+  // 공연 시간 계산 (시작 시간 + 런타임)
+  String calculateTimeRange(String? startTime, String? runtime) {
+    if (startTime == null || runtime == null) {
+      return "시간 정보 없음";
+    }
+
+    // 공연 시작 시간을 DateTime으로 변환
+    DateTime startDateTime = DateFormat("HH:mm").parse(startTime);
+
+    // 런타임을 분으로 변환
+    List<String> runtimeParts = runtime.split(' '); // ["1시간", "30분"]
+    int hours = 0;
+    int minutes = 0;
+
+    for (var part in runtimeParts) {
+      if (part.contains("시간")) {
+        hours = int.parse(part.replaceAll(RegExp(r'\D'), ''));
+      } else if (part.contains("분")) {
+        minutes = int.parse(part.replaceAll(RegExp(r'\D'), ''));
+      }
+    }
+
+    // 종료 시간 계산
+    DateTime endDateTime = startDateTime.add(Duration(hours: hours, minutes: minutes));
+
+    // 시작 시간과 종료 시간을 HH:mm 포맷으로 변환
+    String formattedStartTime = DateFormat("HH:mm").format(startDateTime);
+    String formattedEndTime = DateFormat("HH:mm").format(endDateTime);
+
+    return "$formattedStartTime - $formattedEndTime";
+  }
+
+  // 카페와 식당 시간 계산 (공연 시작 시간 기준으로 역산)
+  String calculatePreviousTime(String? startTime, int offsetMinutes) {
+    if (startTime == null) {
+      return "시간 정보 없음";
+    }
+
+    // 공연 시작 시간을 DateTime으로 변환
+    DateTime startDateTime = DateFormat("HH:mm").parse(startTime);
+
+    // offsetMinutes을 적용해 새로운 시간을 계산
+    DateTime newDateTime = startDateTime.add(Duration(minutes: offsetMinutes));
+
+    // 새로운 시간을 HH:mm 포맷으로 변환
+    String formattedNewTime = DateFormat("HH:mm").format(newDateTime);
+
+    // 1시간의 시간을 보여주기 위해 종료 시간 계산
+    DateTime endDateTime = newDateTime.add(Duration(hours: 1));
+
+    // 종료 시간을 HH:mm 포맷으로 변환
+    String formattedEndTime = DateFormat("HH:mm").format(endDateTime);
+
+    return "$formattedNewTime - $formattedEndTime";
   }
 }
 
@@ -1365,44 +1669,6 @@ class CourseStepItem extends StatelessWidget {
   }
 }
 
-class InfoIconText extends StatelessWidget {
-  final IconData icon;
-  final String text;
-
-  const InfoIconText({
-    required this.icon,
-    required this.text,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: Color.fromARGB(255, 242, 242, 242),
-          ),
-          padding: EdgeInsets.all(10),
-          child: Icon(
-            icon,
-            color: Color.fromARGB(255, 255, 120, 156),
-            size: 32,
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          text,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-  }
-}
 // 지역구 리스트 및 각 페이지에 대한 클래스
 //((****************************************************************************))
 
